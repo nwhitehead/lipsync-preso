@@ -164,6 +164,17 @@ def hstack(items):
     g = VGroup(items).set_x(0).set_y(0).arrange(buff=0.25)
     return g
 
+class OpBox(VGroup):
+    def __init__(self, txt):
+        s = Square(fill_opacity=1.0, fill_color=BLACK)
+        t = Text(txt, font_size=96.0)
+        self.s = s
+        super().__init__(s, t)
+    def get_inputs(self):
+        return [self.s.get_left(), self.s.get_top()]
+    def get_outputs(self):
+        return [self.s.get_right()]
+
 def op_box(txt):
     s = Square(fill_opacity=1.0, fill_color=BLACK)
     t = Text(txt, font_size=96.0)
@@ -190,18 +201,25 @@ class Activation(VGroup):
         super().__init__(s, a, b)
 
 class LinearActivation(VGroup):
-    def __init__(self, inputs=1, txt=r"$d_{in}, d_{out}$", activation_height=1.0):
+    def __init__(self, inputs=1, txt=r"$d_{in}, d_{out}$", activation_height=1.0, include_lines=True):
         ab = Activation(height=activation_height).set_z_index(1)
         linear = VGroup(
-            Rectangle(width=2.0, height=0.5, fill_opacity=1, fill_color=BLACK),
+            Rectangle(width=2.0, height=0.5, fill_opacity=1, fill_color=BLACK).set_z_index(1),
             Tex(txt).scale(0.8),
         ).set_z_index(1).next_to(ab, UP)
-        c = Line(ab.get_center(), linear[0].get_center())
+        c = Line(ab.get_top(), linear[0].get_bottom())
         cxs = VGroup([Line(ORIGIN, UP * 0.3) for i in range(inputs)]).arrange(buff=2.0 / inputs).shift(linear[0].get_top())
         cy = Line(ab.get_center(), ab.get_bottom() + DOWN * 0.2)
-        self.inputs = [c.get_top() for c in cxs]
-        self.outputs = []
-        super().__init__(linear, ab, cxs, c, cy)
+        self.ab = ab
+        self.cxs = cxs
+        if include_lines:
+            super().__init__(linear, ab, cxs, c, cy)
+        else:
+            super().__init__(linear, ab, c)
+    def get_inputs(self):
+        return [c.get_bottom() for c in self.cxs]
+    def get_outputs(self):
+        return [self.ab.get_bottom()]
 
 class LinearScene(Scene):
     def construct(self):
@@ -330,27 +348,33 @@ class MLP(Scene):
 def gru():
     v = VGroup()
     node_positions = [
+        (-6, 0),
         (-2, 0),
         (2, 0),
         (2, 4),
+        (2, -4),
+        (4, 0),
     ]
     node_contents = [
-        op_box('1-'),
-        op_box('×'),
-        op_box('+'),
+        LinearActivation(txt='Reset', activation_height=0.5, include_lines=False),
+        LinearActivation(txt=r'$\hat{h}$', activation_height=0.5, include_lines=False),
+        LinearActivation(txt=r'Update', activation_height=0.5, include_lines=False),
+        OpBox('1-').scale(0.5),
+        OpBox('×').scale(0.5),
+        OpBox('+').scale(0.5),
     ]
     node_edges = [
-        (0, 1),
+        ((0, 0), (1, 0)),
     ]
     for i in range(len(node_positions)):
         x, y = node_positions[i]
         o = node_contents[i].shift(RIGHT * x + UP * y).set_z_index(1)
         v.add(o)
     for edge in node_edges:
-        i, j = edge
-        x0, y0 = node_positions[i]
-        x1, y1 = node_positions[j]
-        line = DirectedLine(RIGHT * x0 + UP * y0, RIGHT * x1 + UP * y1)
+        (i, i_n), (j, j_n) = edge
+        start = node_contents[i].get_outputs()[i_n]
+        end = node_contents[j].get_inputs()[j_n]
+        line = DottedLine(start, end)
         v.add(line)
     v.scale(0.5)
     return v
@@ -439,7 +463,7 @@ def train():
     # Defining the model architecture.
     class LinearRegressionModel(torch.nn.Module): 
         def __init__(self): 
-            super(LinearRegressionModel, self).__init__() 
+            super().__init__() 
             self.linear = torch.nn.Linear(1, 1)
             # this layer of the model has a single neuron, that takes in one scalar input and gives out one scalar output. 
 
