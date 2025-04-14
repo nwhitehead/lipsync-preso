@@ -175,6 +175,16 @@ class OpBox(VGroup):
     def get_outputs(self):
         return [self.s.get_right()]
 
+class Splitter(VGroup):
+    def __init__(self):
+        s = Circle(fill_opacity=1.0, fill_color=BLACK).scale(0.2)
+        self.s = s
+        super().__init__(s)
+    def get_inputs(self):
+        return [self.s.get_left(), self.s.get_top()]
+    def get_outputs(self):
+        return [self.s.get_right(), self.s.get_bottom()]
+
 def op_box(txt):
     s = Square(fill_opacity=1.0, fill_color=BLACK)
     t = Text(txt, font_size=96.0)
@@ -184,14 +194,14 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 class Activation(VGroup):
-    def __init__(self, horizontal=False, height=1.0):
+    def __init__(self, horizontal=False, height=1.0, tanh=False):
         s = Rectangle(fill_opacity=1.0, width=2.0, height=2.0 * height, fill_color=BLACK)
         p1 = np.array([-1, -0.8 * height, 0])
         p2 = np.array([0, -0.8 * height, 0])
         p3 = np.array([0, 0.8 * height, 0])
         p4 = np.array([1, 0.8 * height, 0])
         b = CubicBezier(p1, p2, p3, p4, color=BLUE)
-        a = Line(LEFT + DOWN * 0.8 * height, RIGHT + DOWN * 0.8 * height, stroke_width=2.0)
+        a = Line(LEFT + DOWN * 0.8 * height, RIGHT + DOWN * 0.8 * height, stroke_width=2.0) if not tanh else Line(LEFT, RIGHT, stroke_width=2.0)
         if horizontal:
             self.inputs = [s.get_left()]
             self.outputs = [s.get_right()]
@@ -201,25 +211,22 @@ class Activation(VGroup):
         super().__init__(s, a, b)
 
 class LinearActivation(VGroup):
-    def __init__(self, inputs=1, txt=r"$d_{in}, d_{out}$", activation_height=1.0, include_lines=True):
-        ab = Activation(height=activation_height).set_z_index(1)
+    def __init__(self, inputs=1, txt=r"$d_{in}, d_{out}$", activation_height=1.0, tanh=False):
+        ab = Activation(height=activation_height, tanh=tanh).set_z_index(1)
         linear = VGroup(
             Rectangle(width=2.0, height=0.5, fill_opacity=1, fill_color=BLACK).set_z_index(1),
             Tex(txt).scale(0.8),
         ).set_z_index(1).next_to(ab, UP)
-        c = Line(ab.get_top(), linear[0].get_bottom())
-        cxs = VGroup([Line(ORIGIN, UP * 0.3) for i in range(inputs)]).arrange(buff=2.0 / inputs).shift(linear[0].get_top())
-        cy = Line(ab.get_center(), ab.get_bottom() + DOWN * 0.2)
-        self.ab = ab
+        c = Line(linear[0].get_bottom(), ab.get_top())
+        cxs = VGroup([Line(ORIGIN, UP * 0.2) for i in range(inputs)]).arrange(buff=2.0 / inputs).shift(linear[0].get_top()).shift(UP * 0.1)
+        cy = Line(ab.get_bottom(), ab.get_bottom() + DOWN * 0.2)
+        self.cy = cy 
         self.cxs = cxs
-        if include_lines:
-            super().__init__(linear, ab, cxs, c, cy)
-        else:
-            super().__init__(linear, ab, c)
+        super().__init__(linear, ab, cxs, c, cy)
     def get_inputs(self):
-        return [c.get_bottom() for c in self.cxs]
+        return [c.get_top() for c in self.cxs]
     def get_outputs(self):
-        return [self.ab.get_bottom()]
+        return [self.cy.get_bottom()]
 
 class LinearScene(Scene):
     def construct(self):
@@ -351,30 +358,35 @@ def gru():
         (-6, 0),
         (-2, 0),
         (2, 0),
+        (-2, 4),
+        (-2, -4),
         (2, 4),
         (2, -4),
-        (4, 0),
+        (6, 4),
     ]
     node_contents = [
-        LinearActivation(txt='Reset', activation_height=0.5, include_lines=False),
-        LinearActivation(txt=r'$\hat{h}$', activation_height=0.5, include_lines=False),
-        LinearActivation(txt=r'Update', activation_height=0.5, include_lines=False),
+        LinearActivation(txt='Reset', inputs=2, activation_height=0.5),
+        LinearActivation(txt=r'$\hat{h}$', inputs=2, activation_height=0.5),
+        LinearActivation(txt=r'Update', inputs=2, activation_height=0.5, tanh=True),
         OpBox('1-').scale(0.5),
+        OpBox('×').scale(0.5),
+        OpBox('×').scale(0.5),
         OpBox('×').scale(0.5),
         OpBox('+').scale(0.5),
     ]
     node_edges = [
-        ((0, 0), (1, 0)),
+        ((0, 0), (6, 0)),
     ]
     for i in range(len(node_positions)):
         x, y = node_positions[i]
         o = node_contents[i].shift(RIGHT * x + UP * y).set_z_index(1)
+        print(o.get_inputs(), o.get_outputs())
         v.add(o)
     for edge in node_edges:
         (i, i_n), (j, j_n) = edge
         start = node_contents[i].get_outputs()[i_n]
         end = node_contents[j].get_inputs()[j_n]
-        line = DottedLine(start, end)
+        line = Arrow(start, end, buff=0)
         v.add(line)
     v.scale(0.5)
     return v
