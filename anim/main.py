@@ -355,27 +355,34 @@ class MLP(Scene):
 def gru():
     v = VGroup()
     node_positions = [
-        (-6, 0),
-        (-2, 0),
-        (2, 0),
-        (-2, 4),
-        (-2, -4),
-        (2, 4),
+        (-3, 0),
+        (1, 0),
+        (-2, -6),
+        (-2, -2),
         (2, -4),
-        (6, 4),
+        (4, -6),
+        (0, -4),
+        (0, -6),
     ]
     node_contents = [
         LinearActivation(txt='Reset', inputs=2, activation_height=0.5),
         LinearActivation(txt=r'$\hat{h}$', inputs=2, activation_height=0.5),
         LinearActivation(txt=r'Update', inputs=2, activation_height=0.5, tanh=True),
-        OpBox('1-').scale(0.5),
-        OpBox('×').scale(0.5),
-        OpBox('×').scale(0.5),
-        OpBox('×').scale(0.5),
-        OpBox('+').scale(0.5),
+        # OpBox('×').scale(0.5),
+        # OpBox('×').scale(0.5),
+        # OpBox('×').scale(0.5),
+        # OpBox('1-').scale(0.5),
+        # OpBox('+').scale(0.5),
     ]
     node_edges = [
-        ((0, 0), (6, 0)),
+        # ((0, 0), (3, 0)),
+        # ((1, 0), (5, 0)),
+        # ((1, 0), (6, 1)),
+        # ((2, 0), (5, 1)),
+        # ((3, 0), (2, 1)),
+        # ((4, 0), (7, 0)),
+        # ((5, 0), (7, 1)),
+        # ((6, 0), (4, 0)),
     ]
     for i in range(len(node_positions)):
         x, y = node_positions[i]
@@ -394,16 +401,16 @@ def gru():
 class GRUScene(Scene):
     def construct(self):
         f = 6
-        self.add(gru())
-        lbl_h_t = Tex('$h_t$')
-        lbl_h_t.shift(LEFT * 6.5)
-        self.add(lbl_h_t)
-        lbl_h_t1 = Tex('$h_{t+1}$')
-        lbl_h_t1.shift(RIGHT * 6.2)
-        self.add(lbl_h_t1)
-        lbl_x_t = Tex('$x_t$')
-        lbl_x_t.shift(LEFT * 3).shift(DOWN * 3.3)
-        self.add(lbl_x_t)
+        self.add(gru().shift(UP * 3))
+        # lbl_h_t = Tex('$h_t$')
+        # lbl_h_t.shift(LEFT * 6.5)
+        # self.add(lbl_h_t)
+        # lbl_h_t1 = Tex('$h_{t+1}$')
+        # lbl_h_t1.shift(RIGHT * 6.2)
+        # self.add(lbl_h_t1)
+        # lbl_x_t = Tex('$x_t$')
+        # lbl_x_t.shift(LEFT * 3).shift(DOWN * 3.3)
+        # self.add(lbl_x_t)
 
         # x_t = vstack([make_square() for i in range(f)])
         # x_t.scale(0.2)
