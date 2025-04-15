@@ -464,6 +464,7 @@ class GRUScene(Scene):
     def construct(self):
         g = gru().shift(UP * 2.7)
 
+        self.wait(1)
         self.play(Create(g, run_time=6.0))
         self.wait(1)
         self.play(g.animate.shift(LEFT * 3))
