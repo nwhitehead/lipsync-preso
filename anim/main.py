@@ -181,9 +181,9 @@ class Splitter(VGroup):
         self.s = s
         super().__init__(s)
     def get_inputs(self):
-        return [self.s.get_left(), self.s.get_top()]
+        return [self.s.get_center(), self.s.get_center()]
     def get_outputs(self):
-        return [self.s.get_right(), self.s.get_bottom()]
+        return [self.s.get_center(), self.s.get_center()]
 
 def op_box(txt):
     s = Square(fill_opacity=1.0, fill_color=BLACK)
@@ -355,24 +355,48 @@ class MLP(Scene):
 def gru():
     v = VGroup()
     node_positions = [
-        (-3, 0),
-        (1, 0),
-        (-2, -6),
-        (-2, -2),
-        (2, -4),
-        (4, -6),
-        (0, -4),
-        (0, -6),
+        (-2, -1),
+        (2, -1),
+        (-1, -6),
+        (-2, -3),
+        (2, -8),
+        (4, -7),
+        (4, -3),
+        (2, -10),
+        (-1, 3),
+        (0, 3),
+        (3, 3),
+        (-4, 2),
+        (-3, 2),
+        (1, 2),
+        (6, 2),
+        (-4, -3),
+        (2, -3),
+        (6, -7),
+        (-1, -8),
+        (4, -10),
     ]
     node_contents = [
         LinearActivation(txt='Reset', inputs=2, activation_height=0.5),
         LinearActivation(txt=r'$\hat{h}$', inputs=2, activation_height=0.5),
         LinearActivation(txt=r'Update', inputs=2, activation_height=0.5, tanh=True),
-        # OpBox('×').scale(0.5),
-        # OpBox('×').scale(0.5),
-        # OpBox('×').scale(0.5),
-        # OpBox('1-').scale(0.5),
-        # OpBox('+').scale(0.5),
+        OpBox('×').scale(0.5),
+        OpBox('×').scale(0.5),
+        OpBox('×').scale(0.5),
+        OpBox('1-').scale(0.5),
+        OpBox('+').scale(0.5),
+        Splitter(),
+        Splitter(),
+        Splitter(),
+        Splitter(),
+        Splitter(),
+        Splitter(),
+        Splitter(),
+        Splitter(),
+        Splitter(),
+        Splitter(),
+        Splitter(),
+        Splitter(),
     ]
     node_edges = [
         # ((0, 0), (3, 0)),
@@ -384,9 +408,10 @@ def gru():
         # ((5, 0), (7, 1)),
         # ((6, 0), (4, 0)),
     ]
+    pos_scale = 0.8
     for i in range(len(node_positions)):
         x, y = node_positions[i]
-        o = node_contents[i].shift(RIGHT * x + UP * y).set_z_index(1)
+        o = node_contents[i].shift((RIGHT * x + UP * y) * pos_scale).set_z_index(1)
         print(o.get_inputs(), o.get_outputs())
         v.add(o)
     for edge in node_edges:
