@@ -385,17 +385,17 @@ def gru():
         (6, -7),    # 17
         (-1, -8),   # 18
         (4, -10),   # 19
-        (2, -12),   # 20
+        (2, -13),   # 20
         (-3, 5),    # 21
         (0, 5),     # 22
     ]
     node_contents = [
-        LinearActivation(txt='Reset', inputs=2, activation_height=0.5),                 # 0
-        LinearActivation(txt=r'$\hat{h}$', inputs=2, activation_height=0.5),            # 1
-        LinearActivation(txt=r'Update', inputs=2, activation_height=0.5, tanh=True),    # 2
-        OpBox('×').scale(0.5),                                                          # 3
-        OpBox('×').scale(0.5),                                                          # 4
-        OpBox('×').scale(0.5),                                                          # 5
+        LinearActivation(txt=r'Reset', inputs=2, activation_height=0.5),                 # 0
+        LinearActivation(txt=r'Update', inputs=2, activation_height=0.5),            # 1
+        LinearActivation(txt=r'Candidate', inputs=2, activation_height=0.5, tanh=True),    # 2
+        OpBox('⊙').scale(0.5),                                                          # 3
+        OpBox('⊙').scale(0.5),                                                          # 4
+        OpBox('⊙').scale(0.5),                                                          # 5
         OpBox('1-').scale(0.5),                                                         # 6
         OpBox('+').scale(0.5),                                                          # 7
         Splitter(),                                                                     # 8
@@ -437,12 +437,14 @@ def gru():
         ((14, 0), (17, 0)),
         ((15, 0), (3, 0)),
         ((16, 0), (6, 0)),
+        ((16, 0), (4, 0)),
         ((17, 0), (5, 0)),
         ((18, 0), (4, 0)),
         ((19, 0), (7, 0)),
         ((21, 0), (12, 0)),
         ((22, 0), (9, 0)),
     ]
+    v.add(Rectangle(height=10.5, width=9, stroke_color=GREEN).shift(DOWN * 2.8 + RIGHT * 0.5))
     pos_scale = 0.7
     for i in range(len(node_positions)):
         x, y = node_positions[i]
@@ -460,21 +462,26 @@ def gru():
 
 class GRUScene(Scene):
     def construct(self):
-        f = 6
-        self.add(gru().shift(UP * 3))
-        # lbl_h_t = Tex('$h_t$')
-        # lbl_h_t.shift(LEFT * 6.5)
-        # self.add(lbl_h_t)
-        # lbl_h_t1 = Tex('$h_{t+1}$')
-        # lbl_h_t1.shift(RIGHT * 6.2)
-        # self.add(lbl_h_t1)
-        # lbl_x_t = Tex('$x_t$')
-        # lbl_x_t.shift(LEFT * 3).shift(DOWN * 3.3)
-        # self.add(lbl_x_t)
+        g = gru().shift(UP * 2.7)
 
-        # x_t = vstack([make_square() for i in range(f)])
-        # x_t.scale(0.2)
-        # self.add(x_t)
+        self.play(Create(g, run_time=6.0))
+        self.wait(1)
+        self.play(g.animate.shift(LEFT * 3))
+        self.wait(1)
+
+        formulas = MathTex(r'''
+                           r_t &= \sigma(W_r x_t + U_r h_{t-1} + b_r) \\
+                           z_t &= \sigma(W_z x_t + U_z h_{t-1} + b_z) \\
+                           \hat{h}_t &= \tanh(W_h x_t + U_h ( r_t \odot h_{t-1}) + b_h) \\
+                           h_t &= (1 - z_t) \odot h_{t-1} + z_t \odot \hat{h}_t \\
+                           \, \\
+                           \odot &= \textrm{element-wise multiplication} \\
+                           ''')
+        formulas.scale(0.75).shift(RIGHT * 3.5)
+        self.play(Create(formulas))
+        self.wait(1)
+        self.play(Create(Text("GRU").shift(UP * 3 + RIGHT)))
+        self.wait(1)
 
 class TimeSeries(Scene):
     def construct(self):
