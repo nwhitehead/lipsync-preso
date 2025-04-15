@@ -454,15 +454,14 @@ class NeuralNetModel(torch.nn.Module):
 class MLP(torch.nn.Module): 
     def __init__(self): 
         super().__init__()
-        layers = [
+        self.net = torch.nn.Sequential(
             torch.nn.Linear(784, 200),
             torch.nn.Sigmoid(),
             torch.nn.Linear(200, 200),
             torch.nn.Sigmoid(),
             torch.nn.Linear(200, 10),
             torch.nn.Sigmoid(),
-        ]
-        self.net = nn.Sequential(*layers)
+        )
 
     def forward(self, x):
         return self.net(x)
@@ -496,6 +495,29 @@ class MLP(torch.nn.Module):
 <small>(Cho et al., 2014)</small>
 ---
 <video data-autoplay src="gfx/GRUScene.mp4"></video>
+---
+```python
+class LipSyncGRU(nn.Module):
+    # Constructor has arguments
+    def __init__(self, input_size, hidden_size, num_classes):
+        super().__init__()
+        self.net = nn.Sequential(
+            # batch_first means input is (Batch, Time, D_in)
+            nn.GRU(input_size, hidden_size, batch_first=True),
+            nn.Linear(hidden_size, num_classes),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+---
+### Network Rules
+
+<p class="leftalign">
+    <span>🧩 Match input/output shapes</span><br />
+    <span>⛔ Avoid NANs (but math is generally fine)</span><br />
+    <span>🔪 Don't do in-place modification</span><br />
+    <span>🌱 Random numbers: consider seed flow</span><br />
+</p>
 ---
 
 ### Tips and Tricks
