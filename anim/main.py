@@ -171,9 +171,19 @@ class OpBox(VGroup):
         self.s = s
         super().__init__(s, t)
     def get_inputs(self):
-        return [self.s.get_left(), self.s.get_top()]
+        return [self.s.get_center(), self.s.get_center()]
     def get_outputs(self):
-        return [self.s.get_right()]
+        return [self.s.get_center(), self.s.get_center()]
+
+class TextBox(VGroup):
+    def __init__(self, txt):
+        t = Tex(txt, font_size=96.0)
+        self.t = t
+        super().__init__(t)
+    def get_inputs(self):
+        return [self.t.get_top() + UP * 0.2]
+    def get_outputs(self):
+        return [self.t.get_bottom() + DOWN * 0.2]
 
 class Splitter(VGroup):
     def __init__(self):
@@ -226,7 +236,7 @@ class LinearActivation(VGroup):
     def get_inputs(self):
         return [c.get_top() for c in self.cxs]
     def get_outputs(self):
-        return [self.cy.get_bottom()]
+        return [self.cy.get_center()]
 
 class LinearScene(Scene):
     def construct(self):
@@ -355,50 +365,67 @@ class MLP(Scene):
 def gru():
     v = VGroup()
     node_positions = [
-        (-2, -1),
-        (2, -1),
-        (-1, -6),
-        (-2, -3),
-        (2, -8),
-        (4, -7),
-        (4, -3),
-        (2, -10),
-        (-1, 3),
-        (0, 3),
-        (3, 3),
-        (-4, 2),
-        (-3, 2),
-        (1, 2),
-        (6, 2),
-        (-4, -3),
-        (2, -3),
-        (6, -7),
-        (-1, -8),
-        (4, -10),
+        (-2, -1),   # 0
+        (2, -1),    # 1
+        (-1, -6),   # 2
+        (-2, -3),   # 3
+        (2, -8),    # 4
+        (4, -7),    # 5
+        (4, -3),    # 6
+        (2, -10),   # 7
+        (-1, 3),    # 8
+        (0, 3),     # 9
+        (3, 3),     # 10
+        (-4, 2),    # 11
+        (-3, 2),    # 12
+        (1, 2),     # 13
+        (6, 2),     # 14
+        (-4, -3),   # 15
+        (2, -3),    # 16
+        (6, -7),    # 17
+        (-1, -8),   # 18
+        (4, -10),   # 19
+        (2, -12),   # 20
+        (-4, 5),    # 21
+        (0, 5),     # 22
     ]
     node_contents = [
-        LinearActivation(txt='Reset', inputs=2, activation_height=0.5),
-        LinearActivation(txt=r'$\hat{h}$', inputs=2, activation_height=0.5),
-        LinearActivation(txt=r'Update', inputs=2, activation_height=0.5, tanh=True),
-        OpBox('×').scale(0.5),
-        OpBox('×').scale(0.5),
-        OpBox('×').scale(0.5),
-        OpBox('1-').scale(0.5),
-        OpBox('+').scale(0.5),
-        Splitter(),
-        Splitter(),
-        Splitter(),
-        Splitter(),
-        Splitter(),
-        Splitter(),
-        Splitter(),
-        Splitter(),
-        Splitter(),
-        Splitter(),
-        Splitter(),
-        Splitter(),
+        LinearActivation(txt='Reset', inputs=2, activation_height=0.5),                 # 0
+        LinearActivation(txt=r'$\hat{h}$', inputs=2, activation_height=0.5),            # 1
+        LinearActivation(txt=r'Update', inputs=2, activation_height=0.5, tanh=True),    # 2
+        OpBox('×').scale(0.5),                                                          # 3
+        OpBox('×').scale(0.5),                                                          # 4
+        OpBox('×').scale(0.5),                                                          # 5
+        OpBox('1-').scale(0.5),                                                         # 6
+        OpBox('+').scale(0.5),                                                          # 7
+        Splitter(),                                                                     # 8
+        Splitter(),                                                                     # 9
+        Splitter(),                                                                     # 10
+        Splitter(),                                                                     # 11
+        Splitter(),                                                                     # 12
+        Splitter(),                                                                     # 13
+        Splitter(),                                                                     # 14
+        Splitter(),                                                                     # 15
+        Splitter(),                                                                     # 16
+        Splitter(),                                                                     # 17
+        Splitter(),                                                                     # 18
+        Splitter(),                                                                     # 19
+        TextBox(r'$h_t$'),                                                              # 20
+        TextBox(r'$h_{t-1}$'),                                                          # 21
+        TextBox(r'$x_t$'),                                                              # 22
     ]
     node_edges = [
+        ((0, 0), (3, 0)),
+        ((1, 0), (16, 0)),
+        ((2, 0), (18, 0)),
+        ((3, 0), (2, 0)),
+        ((4, 0), (7, 0)),
+        ((5, 0), (19, 0)),
+        ((6, 0), (5, 0)),
+        ((7, 0), (20, 0)),
+        ((8, 0), (0, 1)),
+        ((9, 0), (2, 1)),
+        ((10, 0), (1, 1)),
         # ((0, 0), (3, 0)),
         # ((1, 0), (5, 0)),
         # ((1, 0), (6, 1)),
@@ -418,7 +445,7 @@ def gru():
         (i, i_n), (j, j_n) = edge
         start = node_contents[i].get_outputs()[i_n]
         end = node_contents[j].get_inputs()[j_n]
-        line = Arrow(start, end, buff=0)
+        line = Line(start, end, buff=0, stroke_width=4.0)
         v.add(line)
     v.scale(0.5)
     return v
