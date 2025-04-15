@@ -167,7 +167,7 @@ def hstack(items):
 class OpBox(VGroup):
     def __init__(self, txt):
         s = Square(fill_opacity=1.0, fill_color=BLACK)
-        t = Text(txt, font_size=96.0)
+        t = Text(txt, font_size=96.0, color=YELLOW)
         self.s = s
         super().__init__(s, t)
     def get_inputs(self):
@@ -183,11 +183,11 @@ class TextBox(VGroup):
     def get_inputs(self):
         return [self.t.get_top() + UP * 0.2]
     def get_outputs(self):
-        return [self.t.get_bottom() + DOWN * 0.2]
+        return [self.t.get_bottom() + DOWN * 0.3]
 
 class Splitter(VGroup):
     def __init__(self):
-        s = Circle(fill_opacity=1.0, fill_color=BLACK).scale(0.2)
+        s = Circle(fill_opacity=1.0, fill_color=WHITE, stroke_color=WHITE).scale(0.07)
         self.s = s
         super().__init__(s)
     def get_inputs(self):
@@ -228,13 +228,13 @@ class LinearActivation(VGroup):
             Tex(txt).scale(0.8),
         ).set_z_index(1).next_to(ab, UP)
         c = Line(linear[0].get_bottom(), ab.get_top())
-        cxs = VGroup([Line(ORIGIN, UP * 0.2) for i in range(inputs)]).arrange(buff=2.0 / inputs).shift(linear[0].get_top()).shift(UP * 0.1)
+        cxs = VGroup([Line(ORIGIN, UP * 0.2) for i in range(inputs)]).arrange(buff=2.8 / inputs).shift(linear[0].get_top()).shift(UP * 0.1)
         cy = Line(ab.get_bottom(), ab.get_bottom() + DOWN * 0.2)
         self.cy = cy 
         self.cxs = cxs
         super().__init__(linear, ab, cxs, c, cy)
     def get_inputs(self):
-        return [c.get_top() for c in self.cxs]
+        return [c.get_center() for c in self.cxs]
     def get_outputs(self):
         return [self.cy.get_center()]
 
@@ -386,7 +386,7 @@ def gru():
         (-1, -8),   # 18
         (4, -10),   # 19
         (2, -12),   # 20
-        (-4, 5),    # 21
+        (-3, 5),    # 21
         (0, 5),     # 22
     ]
     node_contents = [
@@ -425,17 +425,25 @@ def gru():
         ((7, 0), (20, 0)),
         ((8, 0), (0, 1)),
         ((9, 0), (2, 1)),
+        ((9, 0), (8, 0)),
+        ((9, 0), (10, 0)),
         ((10, 0), (1, 1)),
-        # ((0, 0), (3, 0)),
-        # ((1, 0), (5, 0)),
-        # ((1, 0), (6, 1)),
-        # ((2, 0), (5, 1)),
-        # ((3, 0), (2, 1)),
-        # ((4, 0), (7, 0)),
-        # ((5, 0), (7, 1)),
-        # ((6, 0), (4, 0)),
+        ((11, 0), (12, 0)),
+        ((11, 0), (15, 0)),
+        ((12, 0), (13, 0)),
+        ((12, 0), (0, 0)),
+        ((13, 0), (1, 0)),
+        ((13, 0), (14, 0)),
+        ((14, 0), (17, 0)),
+        ((15, 0), (3, 0)),
+        ((16, 0), (6, 0)),
+        ((17, 0), (5, 0)),
+        ((18, 0), (4, 0)),
+        ((19, 0), (7, 0)),
+        ((21, 0), (12, 0)),
+        ((22, 0), (9, 0)),
     ]
-    pos_scale = 0.8
+    pos_scale = 0.7
     for i in range(len(node_positions)):
         x, y = node_positions[i]
         o = node_contents[i].shift((RIGHT * x + UP * y) * pos_scale).set_z_index(1)
