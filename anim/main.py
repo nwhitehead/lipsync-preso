@@ -330,11 +330,11 @@ class MultiInput(Scene):
         self.wait(1)
 
         b = LinearActivation(txt=r"$d_{in}, d_{out}$", inputs=2)
-        top_left_lbl = Tex("$x$").next_to(b.inputs[0], UP)
-        top_right_lbl = Tex("$h$").next_to(b.inputs[1], UP)
+        top_left_lbl = Tex("$x$").next_to(b.get_inputs()[0], UP)
+        top_right_lbl = Tex("$h$").next_to(b.get_inputs()[1], UP)
         lbl_y = Tex("$y$").next_to(b, DOWN)
         v = VGroup(top_left_lbl, top_right_lbl, b, lbl_y).center()
-        self.play(FadeIn(v))
+        self.play(Create(v))
         self.wait(1)
 
         self.play(Create(Tex(r"$y=\sigma(Wx+Uh+b)$").shift(DOWN * 3)))
@@ -523,14 +523,14 @@ class GRUBox(VGroup):
 
 class GRUBoxScene(Scene):
     def construct(self):
-        # self.play(Create(Text("GRU").shift(UP * 3)))
-        # self.wait(1)
+        self.play(Create(Text("GRU").shift(UP * 3)))
+        self.wait(1)
         gb = GRUBox()
         lbl_x = Tex(r'$x_t$').next_to(gb, UP)
         lbl_y = Tex(r'$y_t$').next_to(gb, DOWN)
         lbl_h = Tex(r'$h_{t-1}$').next_to(gb, LEFT)
-        #self.play(Create(gb))
-        self.add(gb, lbl_x, lbl_y, lbl_h)
+        self.play(Create(VGroup(gb, lbl_x, lbl_y, lbl_h)))
+        self.wait(1)
 
 class LipSyncGRU(Scene):
     def construct(self):
