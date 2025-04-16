@@ -43,7 +43,7 @@ class DottedLine(Line):
         **kwargs
     ):
         Line.__init__(self, *args, **kwargs)
-        n_dots = int(self.get_length() / dot_spacing) + 1
+        n_dots = max(int(self.get_length() / dot_spacing) + 1, 2)
         dot_spacing = self.get_length() / (n_dots - 1)
         unit_vector = self.get_unit_vector()
         start = self.start
@@ -484,6 +484,63 @@ class GRUScene(Scene):
         self.play(Create(Text("GRU").shift(UP * 3 + RIGHT)))
         self.wait(1)
 
+class LinearBox(VGroup):
+    def __init__(self, inputs=1, txt=r"$d_{in}, d_{out}$"):
+        linear = VGroup(
+            Rectangle(width=2.0, height=0.7, fill_opacity=1, fill_color=BLACK).set_z_index(1),
+            Tex(txt).scale(0.8),
+        ).set_z_index(1)
+        cxs = VGroup([Line(ORIGIN, UP * 0.2) for i in range(inputs)]).arrange(buff=2.8 / inputs).shift(linear[0].get_top()).shift(UP * 0.1)
+        cy = Line(linear[0].get_bottom(), linear[0].get_bottom() + DOWN * 0.2)
+        self.cxs = cxs
+        self.cy = cy 
+        super().__init__(cxs, linear, cy)
+    def get_inputs(self):
+        return [c.get_center() for c in self.cxs]
+    def get_outputs(self):
+        return [self.cy.get_center()]
+
+class GRUBox(VGroup):
+    def __init__(self, inputs=1, txt=r"GRU", txt2=r"$d_{in}, d_{out}$"):
+        t1 = Tex(txt)
+        t2 = Tex(txt2).next_to(t1, DOWN)
+        t = VGroup(t1, t2).center()
+        b = VGroup(
+            Rectangle(width=2.0, height=1.4, fill_opacity=1, fill_color=BLACK).set_z_index(1),
+            t.scale(0.8),
+        ).set_z_index(1)
+        cx = Line(b[0].get_top(), b[0].get_top() + UP * 0.2)
+        cy = Line(b[0].get_bottom(), b[0].get_bottom() + DOWN * 0.2)
+        hx = DottedLine(b[0].get_left(), b[0].get_left() + LEFT * 0.2, dot_kwargs={'radius': 0.03}, dot_spacing=0.08)
+        self.cx = cx
+        self.cy = cy
+        self.hx = hx
+        super().__init__(cx, b, cy, hx)
+    def get_inputs(self):
+        return [self.cx.get_center(), self.hx.get_center()]
+    def get_outputs(self):
+        return [self.cy.get_center()]
+
+class GRUBoxScene(Scene):
+    def construct(self):
+        # self.play(Create(Text("GRU").shift(UP * 3)))
+        # self.wait(1)
+        gb = GRUBox()
+        lbl_x = Tex(r'$x_t$').next_to(gb, UP)
+        lbl_y = Tex(r'$y_t$').next_to(gb, DOWN)
+        lbl_h = Tex(r'$h_{t-1}$').next_to(gb, LEFT)
+        #self.play(Create(gb))
+        self.add(gb, lbl_x, lbl_y, lbl_h)
+
+class LipSyncGRU(Scene):
+    def construct(self):
+        # self.play(Create(Text("Lip Sync Model (v1)").shift(UP * 3)))
+        # self.wait(1)
+        # lb = LinearBox(inputs=1, txt=r'$32, 12$')
+        # self.play(Create(lb))
+        gb = GRUBox()
+        self.add(gb)
+
 class TimeSeries(Scene):
     def construct(self):
         n = 5
@@ -495,7 +552,6 @@ class TimeSeries(Scene):
         lbl_h_t = Tex('$h_t$')
         lbl_h_t.shift(LEFT * 6.5).shift(UP * 2.0)
 
-        # VGroup(items).set_x(0).set_y(0).arrange(buff=0.25)
         x = VGroup([vstack([make_square() for i in range(f)]) for j in range(n)]).center().scale(0.3).arrange(buff=1.2).shift(DOWN * 1.5)
         self.play(Create(x))
         self.play(Create(lbl_h_t))
