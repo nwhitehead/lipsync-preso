@@ -105,7 +105,7 @@ Nathan Whitehead
 
 1. Why lip sync?
 2. Where data?
-3. How?
+3. Model how?
 4. Production
 
 ---
@@ -524,6 +524,8 @@ model = LipSyncGRU(26, 32, 12)
 ### Training LipSync (v1) CPU
 
 <div class="cast" id="cpucast"></div>
+
+<small><p>00:02:38 on AMD Ryzen 5 3600 (4.1 GHz)</p></small>
 ---
 ### TensorBoard
 
@@ -566,13 +568,37 @@ data_y = data['visemes'].to(device)
 ### Training LipSync (v1) GPU
 
 <div class="cast" id="gpucast"></div>
+
+<small><p>00:01:01 on NVIDIA RTX 3090 FE</p></small>
+
 ---
 ### Tweak it
 
 * Bigger hidden state?
 * Stack more layers?
 * More bins in spectrogram on input?
-* Would dropout help?
+
+---
+### LipSync (v2)
+
+
+---
+### Extra tricks
+
+<img src="./gfx/bench.png" />
+
+* Dropout
+    * Randomly cut out parts of data.
+    * Practice with random players benched.
+    * Force team to not depend on star players.
+
+```python
+# Dropout layer with 20% coverage
+# Put anywhere, fits any shape data
+nn.Dropout(p=0.2)
+```
+
+<small><p>(Sports analogy originates from Dhaval Patel.)</p></small>
 
 ---
 ### Network Rules
@@ -587,10 +613,10 @@ data_y = data['visemes'].to(device)
 
 ### Tips and Tricks
 
-* Have a plan for data
+* Plan for data
 * Clean your data
 * Batch as much data as you can
-* 5-10 minute turnaround means progress
+* Quick turnaround means progress (<10 min)
 
 ---
 <div class="container">
