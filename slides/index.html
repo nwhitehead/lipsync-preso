@@ -498,6 +498,8 @@ class MLP(torch.nn.Module):
 ---
 <video data-autoplay src="gfx/GRUBoxScene.mp4"></video>
 ---
+<video data-autoplay src="gfx/LipSyncGRU.mp4"></video>
+---
 ```python
 class LipSyncGRU(nn.Module):
     # Constructor has arguments
@@ -511,6 +513,19 @@ class LipSyncGRU(nn.Module):
 
     def forward(self, x):
         return self.net(x)
+
+model = LipSyncGRU(26, 32, 12)
+---
+### Training LipSync (v1) CPU
+---
+### Training LipSync (v1) GPU
+---
+### Tweaks!
+
+* Bigger hidden state?
+* Higher dimensions for spectrogram on input?
+* Stack more layers?
+
 ---
 ### Network Rules
 

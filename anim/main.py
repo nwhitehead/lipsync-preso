@@ -534,12 +534,16 @@ class GRUBoxScene(Scene):
 
 class LipSyncGRU(Scene):
     def construct(self):
-        # self.play(Create(Text("Lip Sync Model (v1)").shift(UP * 3)))
-        # self.wait(1)
-        # lb = LinearBox(inputs=1, txt=r'$32, 12$')
-        # self.play(Create(lb))
-        gb = GRUBox()
-        self.add(gb)
+        self.play(Create(Text("Lip Sync Model (v1)").shift(UP * 3)))
+        self.wait(1)
+        gb = GRUBox(txt2=r'$26, 32$')
+        lbl_x = Tex(r'$x_t$').next_to(gb, UP)
+        l = LinearBox(txt=r'$32, 12$').next_to(gb, DOWN).shift(RIGHT * 0.1)
+        c = Line(gb.get_outputs()[0], l.get_inputs()[0])
+        lbl_y = Tex(r'$y_t$').next_to(l, DOWN)
+        ls = VGroup(lbl_x, gb, c, l, lbl_y)
+        self.play(Create(ls))
+        self.wait(1)
 
 class TimeSeries(Scene):
     def construct(self):
