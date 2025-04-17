@@ -9,6 +9,7 @@
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
 		<link rel="stylesheet" href="dist/theme/league.css">
+		<link rel="stylesheet" type="text/css" href="./asciinema-player.css" />
 
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="plugin/highlight/monokai.css">
@@ -517,8 +518,51 @@ class LipSyncGRU(nn.Module):
 model = LipSyncGRU(26, 32, 12)
 ---
 ### Training LipSync (v1) CPU
+
+<div id="cpucast"></div>
+---
+### TensorBoard
+
+<img src="./gfx/loss1.png"></img>
+---
+```python
+from torch.utils.tensorboard import SummaryWriter
+writer = SummaryWriter()
+# ... setup
+for epoch in range(epochs):
+    # ... normal training, use data_x and data_y
+    # Validate, use validate_x and validate_y
+    with torch.no_grad(): # turn off learning
+        pred_y = model(validate_x)
+        validate_loss = criterion(pred_y, validate_y)
+    # Log how we are doing
+    writer.add_scalars('Loss', {
+        'Train': training_loss,
+        'Validate': validate_loss,
+    }, epoch)
+```
+---
+### Torch: GPU
+
+```python
+# Device configuration
+device = torch.device('cuda' if torch.cuda.is_available()
+                      else 'cpu')
+# ...
+# OLD
+data_x = data['spectrogram']
+data_y = data['visemes']
+
+# NEW
+data_x = data['spectrogram'].to(device)
+data_y = data['visemes'].to(device)
+
+```
 ---
 ### Training LipSync (v1) GPU
+
+<div id="gpucast"></div>
+---
 ---
 ### Tweaks!
 
@@ -570,7 +614,8 @@ model = LipSyncGRU(26, 32, 12)
 </section>
 </div>
 </div>
-		<script src="dist/reveal.js"></script>
+        <script src="./asciinema-player.min.js"></script>
+        <script src="dist/reveal.js"></script>
 		<script src="plugin/notes/notes.js"></script>
 		<script src="plugin/markdown/markdown.js"></script>
 		<script src="plugin/highlight/highlight.js"></script>
@@ -603,6 +648,16 @@ model = LipSyncGRU(26, 32, 12)
                     }
                 });
             })();
+        </script>
+        <script>
+            AsciinemaPlayer.create('./cpu2.cast', document.getElementById('cpucast'), {
+                speed: 3,
+                rows: 25,
+            });
+            AsciinemaPlayer.create('./gpu.cast', document.getElementById('gpucast'), {
+                speed: 3,
+                rows: 25,
+            });
         </script>
 	</body>
 </html>
