@@ -71,6 +71,10 @@
         .time {
             color: #8ef;
         }
+        .cast {
+            width: 100%;
+            height: 400px;
+        }
     </style>
 	<body>
         <div class="reveal">
@@ -519,7 +523,7 @@ model = LipSyncGRU(26, 32, 12)
 ---
 ### Training LipSync (v1) CPU
 
-<div id="cpucast"></div>
+<div class="cast" id="cpucast"></div>
 ---
 ### TensorBoard
 
@@ -561,14 +565,14 @@ data_y = data['visemes'].to(device)
 ---
 ### Training LipSync (v1) GPU
 
-<div id="gpucast"></div>
+<div class="cast" id="gpucast"></div>
 ---
----
-### Tweaks!
+### Tweak it
 
 * Bigger hidden state?
-* Higher dimensions for spectrogram on input?
 * Stack more layers?
+* More bins in spectrogram on input?
+* Would dropout help?
 
 ---
 ### Network Rules
@@ -652,11 +656,15 @@ data_y = data['visemes'].to(device)
         <script>
             AsciinemaPlayer.create('./cpu2.cast', document.getElementById('cpucast'), {
                 speed: 3,
+                cols: 133,
                 rows: 25,
+                fit: 'both',
             });
             AsciinemaPlayer.create('./gpu.cast', document.getElementById('gpucast'), {
                 speed: 3,
+                cols: 133,
                 rows: 25,
+                fit: 'both',
             });
         </script>
 	</body>
