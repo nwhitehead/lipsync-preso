@@ -593,6 +593,51 @@ class TimeSeries(Scene):
         self.play(Create(h_ts[n]))
         self.play(Create(Arrow(start=DOWN, end=UP * 0.8).scale(0.8).next_to(h_ts[n], UP, buff=0)))
 
+class TimeSeriesShift(Scene):
+    def construct(self):
+        n = 5
+        f = 6
+        fh = 3
+        lbl_x_t = Tex('$x_t$')
+        lbl_x_t.shift(LEFT * 6.5).shift(DOWN * 1.5)
+        # self.play(Create(lbl_x_t))
+        lbl_h_t = Tex('$h_t$')
+        lbl_h_t.shift(LEFT * 6.5).shift(UP * 3.5)
+
+        x = VGroup([vstack([make_square() for i in range(f)]) for j in range(n)]).center().scale(0.3).arrange(buff=1.2).shift(DOWN * 1.5)
+        # self.play(Create(x))
+        # self.play(Create(lbl_h_t))
+
+        h_ts = []
+        def ms(i):
+            return make_square(0.0) if i == 0 else make_square()
+        h_ts = VGroup([vstack([ms(j) for i in range(fh)]) for j in range(n + 1)]).center().scale(0.3).arrange(buff=1.2).shift(UP * 2.0)
+
+        # Op boxes
+        def arrow_opbox():
+            o = op_box("").scale(0.4)
+            la = Arrow(start=LEFT * 1.0, end=RIGHT, buff=0, max_stroke_width_to_length_ratio=5).scale(0.4).next_to(o, LEFT, buff=0)
+            ra = Arrow(start=LEFT, end=RIGHT * 1.0, buff=0, max_stroke_width_to_length_ratio=5).scale(0.4).next_to(o, RIGHT, buff=0)
+            ba = Arrow(start=DOWN * 5.5, end=UP, buff=0, max_stroke_width_to_length_ratio=5/4).scale(0.4).next_to(o, DOWN, buff=0)
+            return VGroup(la, ba, o, ra).set_x(0).set_y(0)
+
+        boxes = VGroup([
+            arrow_opbox().scale(0.5).next_to(h_ts[i], RIGHT, buff=0).shift(DOWN * 0.66)
+            for i in range(n)])
+    
+        up_arrows = VGroup()
+        for i in range(1, n+1):
+            up_arrows.add(Arrow(start=DOWN, end=UP * 0.8).scale(0.8).next_to(h_ts[i], UP, buff=0))
+        toppart = VGroup(boxes, h_ts, up_arrows)
+        botpart = VGroup(lbl_x_t, x, lbl_h_t)
+        self.add(toppart)
+        self.add(botpart)
+        # self.play(Create(toppart))
+        # self.play(Create(botpart))
+        # # self.play(UpdateFromAlphaFunc(toppart, lambda elem, alpha: 0))
+        toppart.shift(LEFT * 1.8)
+        # self.play(toppart.animate.shift(LEFT * 1.6))
+        # self.wait(1)
 
 def train():
     seed = 1234
