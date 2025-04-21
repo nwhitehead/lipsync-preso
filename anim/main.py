@@ -355,11 +355,15 @@ class MLP(Scene):
         self.play(Create(v))
         self.wait(1)
 
-        digit = ImageMobject("mnist3.png").scale(1.0).next_to(lbl_x, RIGHT).shift(RIGHT)
+        digit = ImageMobject("mnist3.png").scale(1.0).next_to(lbl_x, RIGHT).shift(RIGHT + DOWN * 0.5)
         digit.set_resampling_algorithm(RESAMPLING_ALGORITHMS['nearest'])
-        self.add(digit)
-        out = Text('0 0 0 1 0 0 0 0 0 0').scale(0.5).next_to(lbl_y, RIGHT).shift(RIGHT)
-        self.add(out)
+        out = VGroup([
+            VGroup([
+                Text('1' if i == 3 else '0'),
+                Text(f'{i}', color=BLUE),
+            ]).arrange(direction=DOWN) for i in range(10)]).arrange().scale(0.5).next_to(lbl_y, RIGHT).shift(RIGHT)
+        self.play(FadeIn(digit))
+        self.play(Create(out))
         self.wait(1)
 
 def gru():
