@@ -32,7 +32,7 @@
         }
         .barlabel {
             display: inline-block;
-            width: 175px;
+            width: 179px;
             font-size: 32px;
             text-align: right;
         }
@@ -270,7 +270,7 @@ LibriSpeech
     </div>
     <div class="col">
 <ul>
-<li>phonemes → timing → audio</li>
+<li>text → phonemes → timing → audio</li>
 <li>phonemes → visemes (fixed algorithm)</li>
 </ul>
     </div>
@@ -324,7 +324,7 @@ for i, (ph, t) in list(enumerate(zip(phone_list, timestamps))):
             <span>Hop length 10 ms</span><br />
             <span>Group FFT into 13 bins</span><br />
             <span>100 vectors per second</span><br />
-            <small>Research into voice audio goes back to invention of telephone, all this stuff is just package defaults.</small>
+            <small>Research into voice audio goes back to invention of telephone, all this stuff is just package defaults in <code>torchaudio</code>.</small>
         </p>
     </div>
 </div>
