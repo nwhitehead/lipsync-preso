@@ -549,6 +549,21 @@ class LipSyncGRU(Scene):
         self.play(Create(ls))
         self.wait(1)
 
+class LipSyncGRU2(Scene):
+    def construct(self):
+        self.play(Create(Text("Lip Sync Model (v2)").shift(UP * 3)))
+        self.wait(1)
+        gb = GRUBox(txt2=r'$26, 80$')
+        gb2 = GRUBox(txt2=r'$80, 80$').next_to(gb, DOWN)
+        lbl_x = Tex(r'$x_t$').next_to(gb, UP)
+        l = LinearBox(txt=r'$80, 12$').next_to(gb2, DOWN).shift(RIGHT * 0.1)
+        c1 = Line(gb.get_outputs()[0], gb2.get_inputs()[0])
+        c2 = Line(gb2.get_outputs()[0], l.get_inputs()[0])
+        lbl_y = Tex(r'$y_t$').next_to(l, DOWN)
+        ls = VGroup(lbl_x, gb, c1, gb2, c2, l, lbl_y).center().shift(DOWN * 0.5).scale(0.9)
+        self.play(Create(ls))
+        self.wait(1)
+
 class TimeSeries(Scene):
     def construct(self):
         n = 5
@@ -595,6 +610,7 @@ class TimeSeries(Scene):
 
 class TimeSeriesShift(Scene):
     def construct(self):
+
         n = 5
         f = 6
         fh = 3
@@ -613,16 +629,21 @@ class TimeSeriesShift(Scene):
             return make_square(0.0) if i == 0 else make_square()
         h_ts = VGroup([vstack([ms(j) for i in range(fh)]) for j in range(n + 1)]).center().scale(0.3).arrange(buff=1.2).shift(UP * 2.0)
 
+        alpha = ValueTracker(0)
         # Op boxes
-        def arrow_opbox():
+        def arrow_opbox(i):
             o = op_box("").scale(0.4)
-            la = Arrow(start=LEFT * 1.0, end=RIGHT, buff=0, max_stroke_width_to_length_ratio=5).scale(0.4).next_to(o, LEFT, buff=0)
-            ra = Arrow(start=LEFT, end=RIGHT * 1.0, buff=0, max_stroke_width_to_length_ratio=5).scale(0.4).next_to(o, RIGHT, buff=0)
-            ba = Arrow(start=DOWN * 5.5, end=UP, buff=0, max_stroke_width_to_length_ratio=5/4).scale(0.4).next_to(o, DOWN, buff=0)
+            la = Arrow(start=LEFT, end=RIGHT, buff=0, max_stroke_width_to_length_ratio=5).scale(0.4).next_to(o, LEFT, buff=0)
+            ra = Arrow(start=LEFT, end=RIGHT, buff=0, max_stroke_width_to_length_ratio=5).scale(0.4).next_to(o, RIGHT, buff=0)
+            # ba = always_redraw(lambda: Arrow(end=o.get_bottom(), start=x[i].get_bottom() / 3, buff=0))
+            # ba = Arrow(start=DOWN * 3.0, end=o.get_bottom(), buff=0)
+            def lambda_ba():
+                return Arrow(start=x[i].get_top(), end=o.get_bottom(), buff=0)
+            ba = always_redraw(lambda_ba)
             return VGroup(la, ba, o, ra).set_x(0).set_y(0)
 
         boxes = VGroup([
-            arrow_opbox().scale(0.5).next_to(h_ts[i], RIGHT, buff=0).shift(DOWN * 0.66)
+            arrow_opbox(i).scale(0.5).next_to(h_ts[i], RIGHT, buff=0).shift(DOWN * 0.66)
             for i in range(n)])
     
         up_arrows = VGroup()
@@ -635,7 +656,8 @@ class TimeSeriesShift(Scene):
         # self.play(Create(toppart))
         # self.play(Create(botpart))
         # # self.play(UpdateFromAlphaFunc(toppart, lambda elem, alpha: 0))
-        toppart.shift(LEFT * 1.8)
+        #toppart.shift(LEFT * 1.8)
+        #self.play(alpha.animate.set_value(1))
         # self.play(toppart.animate.shift(LEFT * 1.6))
         # self.wait(1)
 

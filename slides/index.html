@@ -8,7 +8,7 @@
 
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/league.css">
+		<link rel="stylesheet" href="dist/theme/night.css">
 		<link rel="stylesheet" type="text/css" href="./asciinema-player.css" />
 
 		<!-- Theme used for syntax highlighted code -->
@@ -24,9 +24,15 @@
             text-align: left;
             margin-left: 120px;
         }
+        .blocktext {
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+            width: 12em;
+        }
         .barlabel {
             display: inline-block;
-            width: 180px;
+            width: 175px;
             font-size: 32px;
             text-align: right;
         }
@@ -42,6 +48,9 @@
             padding-bottom: 10px;
             padding-right: 40px;
             outline-color: #ff0;
+        }
+        .underline {
+            border-bottom: 3px solid #ff0;
         }
 
         .reveal .slides section .fragment.step-fade-in-then-out {
@@ -62,8 +71,11 @@
         .container{
             display: flex;
         }
-        .col{
+        .col {
             flex: 1;
+        }
+        .col2 { 
+            flex: 2;
         }
         .data {
             color: #fe8;
@@ -84,6 +96,8 @@
 ## 🍒 Cherry Lip Sync
 
 Nathan Whitehead
+
+Boise Code Camp 2025
 ---
 <p class="leftalign">
     <a href="https://github.com/nwhitehead/cherry-lip-sync">
@@ -104,9 +118,10 @@ Nathan Whitehead
 ## Agenda
 
 1. Why lip sync?
-2. Where data?
+2. Data where?
 3. Model how?
-4. Production
+4. Deployment
+5. Final thoughts
 
 ---
 ## Why lip sync?
@@ -201,7 +216,7 @@ What do kids want to be when they grow up?
 
 2D lip sync uses 4 to 16 visemes.
 ---
-## Where Data?
+## Data where?
 * Audio
 * Annotations
 ---
@@ -280,7 +295,7 @@ p2v_map = {
 ```
 ---
 ```python
-for i, (ph, t) in list(enumerate(zip(phoneme_list, timestamps))):
+for i, (ph, t) in list(enumerate(zip(phone_list, timestamps))):
     if ph in p2v_map:
         v = p2v_map[ph]
     else:
@@ -302,20 +317,20 @@ for i, (ph, t) in list(enumerate(zip(phoneme_list, timestamps))):
         <img src="gfx/stft_output.png" width="600px"/>
     </div>
     <div class="col">
-        <ul>
-            <li>Resample to 16 kHz</li>
-            <li>Window length 25 ms</li>
-            <li>Hann window</li>
-            <li>Hop length 10 ms</li>
-            <li>Group FFT into 13 bins</li>
-            <li>100 vectors per second</li>
-        </ul>
-        <p><small>Research into voice audio goes back to invention of telephone, all this stuff is just package defaults.</p></small>
-        <p>
-            <small>Diagram from <a href="https://www.mathworks.com/help/dsp/ref/dsp.stft.html">https://www.mathworks.com/help/dsp/ref/dsp.stft.html</a></small>
+        <p class="blocktext">
+            <span>Resample to 16 kHz</span><br />
+            <span>Window length 25 ms</span><br />
+            <span>Hann window</span><br />
+            <span>Hop length 10 ms</span><br />
+            <span>Group FFT into 13 bins</span><br />
+            <span>100 vectors per second</span><br />
+            <small>Research into voice audio goes back to invention of telephone, all this stuff is just package defaults.</small>
         </p>
     </div>
 </div>
+<p>
+    <small>Diagram from <a href="https://www.mathworks.com/help/dsp/ref/dsp.stft.html">https://www.mathworks.com/help/dsp/ref/dsp.stft.html</a></small>
+</p>
 ---
 ### Building Dataset
 
@@ -331,7 +346,7 @@ Total about 1 hour of training data. (235 MB)
 import torchaudio
 import pandas as pd
 # ...
-samples, rate = torchaudio.load(f'./data/audio-600.mp3')
+samples, rate = torchaudio.load('./data/audio-600.mp3')
 samples = samples.numpy()[0] # Take left channel samples
 # ...
 entries = []
@@ -481,11 +496,21 @@ class MLP(torch.nn.Module):
 ---
 ### Deep Learning
 
-* Researchers:
-    * How do we use spatial structure?
-    * How do we train deeper networks?
-* For us:
-    * How do we use time? 🕗
+<div class="container">
+    <div class="col">
+        <img src="./gfx/xkcd_1838_machine_learning.png" />
+        <small><a href="https://xkcd.com/1838/">https://xkcd.com/1838/</a></small>
+    </div>
+    <div class="col">
+        <p class="blocktext">
+            How do we use spatial structure? <br />
+            How do we train deeper networks? <br />
+            <br />
+            <span class="underline">🕗 How do we use time?</span>
+        </p>
+    </div>
+</div>
+
 ---
 ### Time Series
 
@@ -581,6 +606,8 @@ data_y = data['visemes'].to(device)
 * More bins in spectrogram on input?
 
 ---
+<video data-autoplay src="gfx/LipSyncGRU2.mp4"></video>
+---
 ### LipSync (v2)
 
 ```python
@@ -599,6 +626,13 @@ class LipSyncGRU(nn.Module):
         return self.net(x)
 ```
 ---
+### TensorBoard
+
+<img src="./gfx/loss2.png"></img>
+
+Overfitting!
+
+---
 ### Extra tricks
 
 <img src="./gfx/bench.png" />
@@ -613,62 +647,148 @@ class LipSyncGRU(nn.Module):
 # Put anywhere, fits any shape data
 nn.Dropout(p=0.2)
 ```
+---
+### Extra Tricks 
 
-<!-- <small><p>(Sports analogy originates from Dhaval Patel.)</p></small> -->
+<img src="./gfx/vu.png" width="150px" />
+
+* `BatchNorm`
+    * Automatically scale input vectors.
+    * Treats each channel independently.
+    * _Like an audio compressor._
+
+```python
+# Input is (Batch, Time, D_in)
+Permute((0, 2, 1)),
+# BatchNorm1d needs (Batch, D_in, Time)
+nn.BatchNorm1d(input_size),
+# Go back to normal
+Permute((0, 2, 1)),
+```
+---
+### LipSync (v3)
+
+```python
+self.net = nn.Sequential(
+    Permute((0, 2, 1)),
+    nn.BatchNorm1d(26),
+    Permute((0, 2, 1)),
+    nn.Dropout(p=0.2),
+    nn.GRU(26, 80, batch_first=True),
+    SelectItem(0),
+    nn.Dropout(p=0.2),
+    nn.GRU(80, 80, batch_first=True),
+    SelectItem(0),
+    nn.Linear(80, 12),
+)
+```
+---
+### TensorBoard
+
+<img src="./gfx/loss3.png"></img>
 
 ---
+### Demo
+
+<video controls src="gfx/welcome.mp4"></video>
+
+---
+
+## Deployment
+
+---
+### Saving and Loading
+
+```python
+# After training, save the model
+torch.save(model.state_dict(), 'model.pt')
+# ... a different script
+# Load the model
+model = LipSyncGRU() # at this point it has random weights
+modem.load_state_dict(
+    torch.load('model.pt', weights_only=True,
+        # Switch to using CPU after training on GPU
+        map_location=torch.device('cpu'))
+)
+```
+---
+### Export to ONNX
+
+```python
+# ... Load model from weights
+# Turn off training
+model.eval()
+# Send through one round of random input
+x = torch.randn(1, max_time, feature_dims)
+_ = model(x)
+# Save as ONNX file
+torch.onnx.export(model, x, 'model.onnx',
+    export_params=True,
+    input_names=['input'],
+    output_names=['output'],
+    dynamic_axes={
+        'input': { 1: 'time' },
+        'output': { 1: 'time'}})
+```
+
+---
+### ONNX Runtime (ORT)
+
+<img src="./gfx/onnx.png" width="200px" />
+
+* Standard model interchange format
+* All languages can use it, CPU, GPU
+* Works in the browser with HW acceleration (!)
+
+---
+
+## Final Thoughts
+
+---
+
 ### Model Tips
 
 <p class="leftalign">
     <span>🧩 Match input/output shapes</span><br />
     <span>⛔ Avoid NANs (but math is OK)</span><br />
     <span>🔪 Don't do in-place modification</span><br />
-    <span>🌱 Random numbers: consider seed flow</span><br />
+    <!-- <span>🌱 Random numbers: consider seed flow</span><br /> -->
+    <span><img src="./gfx/bench.png" /> Use all the tricks (dropout, BatchNorm)</span><br />
 </p>
 ---
 
-### Tips and Tricks
+### Deep Learning Plan
 
 * Start with data
 * Clean your data
-* Compactify data
+* Compact your data
 * Quick turnaround means progress (<10 min)
 
----
-### AI Maxxing
 ---
 ### Recommended tech
 
 ```python
-uv          # Setup python environment
+uv          # Python environment management
 python      # For training and model development
 torch       # Deep learning framework
 torchaudio  # Audio torch stuff
 torchvision # Image and video torch stuff
 pandas      # Data management in python
 tensorboard # Viewing training progress graphs
+tqdm        # Pretty progress bars
 onnxruntime # Deploying and sharing models
 ```
 
 ---
 
-> Anyone can cook... but only the fearless can be great.
+> Anyone can cook <span style="color: #dd4;">a machine learning model</span>... but only the fearless can be great.
 >
-> — <cite>Auguste Gusteau, famous chef in **Ratatouille**</cite>
+> — <cite>Gusteau, famous chef in **Ratatouille**</cite>
 
 <img src="./gfx/ratatouille-34.webp" width="600"></img>
 
 ---
-
-<div class="container">
-    <div class="col">
-        Column 1 Content
-    </div>
-    <div class="col">
-        Column 2 Content
-    </div>
-</div>
-
+The End
 </textarea>
 
 
