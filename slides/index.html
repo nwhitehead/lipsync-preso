@@ -115,14 +115,14 @@
     </a><br />
 </p>
 
----
+<!-- ---
 ## Agenda
 
 1. Why lip sync?
 2. Data where?
 3. Model how?
 4. Deployment
-5. Final thoughts
+5. Final thoughts -->
 
 ---
 ## Why lip sync?
@@ -388,9 +388,9 @@ and speedrun the history of deep learning.
 
 <small>(Gauss, 1800)</small>
 ---
-<video data-autoplay src="gfx/SGD.mp4"></video>
+<video data-autoplay src="gfx/SGD.mp4" poster="gfx/SGD.png"></video>
 ---
-<video data-autoplay src="gfx/Loss.mp4"></video>
+<video data-autoplay src="gfx/Loss.mp4" poster="gfx/Loss.png"></video>
 ---
 ### PyTorch Code
 
@@ -442,11 +442,11 @@ for epoch in range(3000):
 
 <small>(Rosenblatt, 1950)</small>
 ---
-<video data-autoplay src="gfx/LinearScene.mp4"></video>
+<video data-autoplay src="gfx/LinearScene.mp4" poster="gfx/LinearScene.png"></video>
 ---
-<video data-autoplay src="gfx/LinearScene2.mp4"></video>
+<video data-autoplay src="gfx/LinearScene2.mp4" poster="gfx/LinearScene2.png"></video>
 ---
-<video data-autoplay src="gfx/MultiInput.mp4"></video>
+<video data-autoplay src="gfx/MultiInput.mp4" poster="gfx/MultiInput.png"></video>
 ---
 ```python
 class NeuralNetModel(torch.nn.Module): 
@@ -469,7 +469,7 @@ class NeuralNetModel(torch.nn.Module):
 
 <small>(Hinton, 1986)</small>
 ---
-<video data-autoplay src="gfx/MLP.mp4"></video>
+<video data-autoplay src="gfx/MLP.mp4" poster="gfx/MLP.png"></video>
 ---
 ```python
 class MLP(torch.nn.Module): 
@@ -515,7 +515,7 @@ class MLP(torch.nn.Module):
 ---
 ### Time Series
 
-<video data-autoplay src="gfx/TimeSeries.mp4"></video>
+<video data-autoplay src="gfx/TimeSeries.mp4" poster="gfx/TimeSeries.png"></video>
 ---
 ### GRU - Gated Recurrent Unit
 * Explicit internal state
@@ -525,11 +525,11 @@ class MLP(torch.nn.Module):
 
 <small>(Cho et al., 2014)</small>
 ---
-<video data-autoplay src="gfx/GRUScene.mp4"></video>
+<video data-autoplay src="gfx/GRUScene.mp4" poster="gfx/GRUScene.png"></video>
 ---
-<video data-autoplay src="gfx/GRUBoxScene.mp4"></video>
+<video data-autoplay src="gfx/GRUBoxScene.mp4" poster="gfx/GRUBoxScene.png"></video>
 ---
-<video data-autoplay src="gfx/LipSyncGRU.mp4"></video>
+<video data-autoplay src="gfx/LipSyncGRU.mp4" poster="gfx/LipSyncGRU.png"></video>
 ---
 ```python
 class SelectItem(nn.Module):
@@ -607,7 +607,7 @@ data_y = data['visemes'].to(device)
 * More bins in spectrogram on input?
 
 ---
-<video data-autoplay src="gfx/LipSyncGRU2.mp4"></video>
+<video data-autoplay src="gfx/LipSyncGRU2.mp4" poster="gfx/LipSyncGRU2.png"></video>
 ---
 ### LipSync (v2)
 
@@ -691,7 +691,7 @@ self.net = nn.Sequential(
 ---
 ### Demo
 
-<video controls src="gfx/welcome.mp4"></video>
+<video controls src="gfx/welcome.mp4" poster="gfx/welcome.png"></video>
 
 ---
 
@@ -703,7 +703,7 @@ self.net = nn.Sequential(
 ```python
 # After training, save the model
 torch.save(model.state_dict(), 'model.pt')
-# ... a different script
+# ... in a different script
 # Load the model
 model = LipSyncGRU() # at this point it has random weights
 modem.load_state_dict(
@@ -783,11 +783,11 @@ onnxruntime # Deploying and sharing models
 
 ---
 
+<img src="./gfx/ratatouille-34.webp" width="600"></img>
+
 > Anyone can cook <span style="color: #dd4;">a machine learning model</span>... but only the fearless can be great.
 >
 > — <cite>Gusteau, famous chef in **Ratatouille**</cite>
-
-<img src="./gfx/ratatouille-34.webp" width="600"></img>
 
 ---
 The End
@@ -844,13 +844,13 @@ The End
         </script>
         <script>
             AsciinemaPlayer.create('./cpu2.cast', document.getElementById('cpucast'), {
-                speed: 3,
+                speed: 5,
                 cols: 133,
                 rows: 25,
                 fit: 'both',
             });
             AsciinemaPlayer.create('./gpu.cast', document.getElementById('gpucast'), {
-                speed: 3,
+                speed: 5,
                 cols: 133,
                 rows: 25,
                 fit: 'both',
